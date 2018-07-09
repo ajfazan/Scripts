@@ -4,7 +4,7 @@ from pci.geocodedem import *
 
 from multiprocessing import *
 
-import csv, glob, sys, os
+import csv, glob, os, sys
 
 def extract_dem( p ):
   demopts = "epitracking computepyramid"
