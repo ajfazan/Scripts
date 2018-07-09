@@ -1,10 +1,13 @@
 from pci.epipolardsm import *
+
+from pci.geocodedem import *
+
 from multiprocessing import *
 
 import csv, glob, sys, os
 
 def extract_dem( p ):
-  demopts = "smalltiles epitracking noglobal computepyramid"
+  demopts = "epitracking computepyramid"
   tag = "dem" + str( p['interval'][0] ) + "_"
   dem = p["left"].replace( "el_", tag )
   print "Extracting epipolar dem '%s'" % dem
@@ -12,6 +15,7 @@ def extract_dem( p ):
   print "'%s' done" % dem
 
 if __name__ == '__main__':
+
   if not os.path.isfile( sys.argv[1] ):
     print "Input argument must be a text file"
     exit( 1 )
@@ -47,6 +51,13 @@ if __name__ == '__main__':
   p = Pool( threads )
   p.map( extract_dem, epipolars )
 
+  if os.path.exists( sys.argv[3] ):
+    try:
+      os.remove( sys.argv[3] )
+    except OSError as e:
+      print "Unable to remove %s: %s" % ( sys.argv[3], e )
+      exit( -1 )
+
   pattern = "dem" + str( interval ) + "_*.pix"
 
   r = geocodedem( pattern, [ 5 ], [ 4 ], [], [], [ -32768 ], u"YES", u"",
@@ -54,4 +65,8 @@ if __name__ == '__main__':
 
   if r == 0:
     for f in glob.glob( pattern ):
-      os.remove( f )
+      try:
+        os.remove( f )
+      except OSError as e:
+        print "Unable to remove %s: %s" % ( f, e )
+        exit( -1 )
